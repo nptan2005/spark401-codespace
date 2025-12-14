@@ -21,4 +21,10 @@ echo ">>> Install Python packages"
 pip install --upgrade pip
 pip install -r requirements.txt
 
+echo "export SPARK_HOME=/opt/spark"
+echo "export PATH=$SPARK_HOME/bin:$PATH"
+echo "export PYSPARK_PYTHON=python3"
+
+echo "source ~/.bashrc" >> ~/.profile
+
 echo ">>> Done"
