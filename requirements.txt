@@ -1,0 +1,6 @@
+pyspark==4.0.1
+jupyterlab
+pandas
+pyarrow
+numpy
+matplotlib
