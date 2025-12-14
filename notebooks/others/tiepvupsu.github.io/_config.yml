@@ -1,0 +1,35 @@
+sass:
+  style: :compressed  # Change to :expanded for debugging
+
+permalink: /:year/:month/:day/:title.html
+
+url: https://machinelearningcoban.com
+baseurl: ""
+
+future: true
+debug: false
+
+# Build settings
+markdown: kramdown
+permalink: pretty
+future: true
+highlighter: rouge
+linenos: true
+kramdown:
+  input: GFM
+  auto_ids: true
+  syntax_highlighter: rouge
+
+# Disqus post comments
+disqus_shortname: tiepvu
+
+# number of posts per page. Should be a number such that total pages >= 5. Well, this 
+# is my choice, there is no specific reason for this.
+paginate: 10
+paginate_path: "/page:num/"
+
+# `gems: [jekyll-paginate]`
+
+gems:
+  - jekyll-sitemap
+  - jekyll-paginate
