@@ -1,13 +1,17 @@
 {
   "name": "Spark 4.0.1 PySpark Dev",
   "image": "mcr.microsoft.com/devcontainers/python:3.12",
-  "postCreateCommand": "bash .devcontainer/setup.sh",
+
   "features": {
     "ghcr.io/devcontainers/features/java:1": {
       "version": "17"
     }
   },
+
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+
   "forwardPorts": [8888],
+
   "customizations": {
     "vscode": {
       "extensions": [
