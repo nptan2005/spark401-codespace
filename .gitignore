@@ -212,3 +212,7 @@ __marimo__/
 ./airflow/logs/*
 ./airflow/airflow.db
 ./airflow/__pycache__/*
+
+./data/silver_out/*
+./data/bronze/*
+./data/silver/*

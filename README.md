@@ -546,6 +546,27 @@ airflow dags test bronze_to_silver 2024-01-01
 airflow dags test silver_to_gold 2024-01-01
 ```
 
+check
+```bash
+gsutil ls gs://cdp-dem-gold/
+```
+
+List bảng trong dataset GOLD
+```bash
+bq ls cdp-dem-project:cdp_gold
+```
+
+Show schema bảng (ví dụ bảng orders)
+```bash
+bq show cdp-dem-project:cdp_gold.orders
+```
+
+Query thử dữ liệu:
+```bash
+bq query --use_legacy_sql=false \
+'SELECT COUNT(*) FROM `cdp-dem-project.cdp_gold.orders`'
+```
+
 test submit job trực tiếp:
 ```bash
 gcloud dataproc jobs list \
@@ -570,6 +591,12 @@ gcloud dataproc jobs list \
 🔹 Không cần tên mới (tên cũ dùng lại OK)
 
 check
+```bash
+gcloud compute instances list \
+  --filter="name~'cdp-demo-dp'" \
+  --format="table(name,zone,machineType,status)"
+```
+
 ```bash
 gcloud dataproc clusters list --region=asia-southeast1
 ```
@@ -603,6 +630,17 @@ gcloud dataproc jobs list --region=asia-southeast1
 delete
 ```bash
 gcloud dataproc clusters delete $CLUSTER_NAME --region $REGION
+```
+
+hoặc cụ thể:
+```bash
+gcloud dataproc clusters delete cdp-demo-dp \
+  --region asia-southeast1 \
+  --quiet
+```
+kiểm tra sau khi xoá:
+```bash
+gcloud dataproc clusters list --region asia-southeast1
 ```
 
 ## Khi cần test lại
@@ -649,3 +687,26 @@ gcloud dataproc clusters create $CLUSTER_NAME \
   --image-version 2.2-debian12 \
   --project $PROJECT_ID
 ```
+
+### check billing:
+```bash
+gcloud billing accounts list
+```
+```bash
+gcloud beta billing projects describe cdp-dem-project
+```
+
+
+## Continue follow documents as bellow:
+### AIRFLOW -> GCP, PLAN:
+
+|Phase|Tóm tắt   |
+|-----|----------|
+|[Phase 1 – Environment](./docs/01_Phase_1_local_codespace.md)|Test local trên codespace|
+|[Phase 2 – Data Processing](./docs/02_Phase_2_GCP_Free_Tier_Serverless.md)|Dag test local trên codespace và spark job submit GCP Serverless|
+|[Phase 3 – Orchestration](./docs/03_Phase_3_Orchestration.md)|Airflow|
+|Phase 4 – Enterprise Hardening|Cải thien|
+0. [Setup airlow in codespace](./airflow/README.md)
+1. [PHASE 1 – Local / Codespace](./docs/01_Phase_1_local_codespace.md)
+2. [PHASE 2 – GCP Free Tier - DataProc Serverless](./docs/02_Phase_2_GCP_Free_Tier_Serverless.md)
+3. [PHASE 3 - Airflow orchestration](./docs/03_Phase_3_Orchestration.md)

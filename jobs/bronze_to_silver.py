@@ -7,6 +7,7 @@ from pyspark.sql.types import (
     StructType, StructField,
     StringType, IntegerType, DoubleType, TimestampType
 )
+from pyspark.sql.functions import to_date
 
 
 def get_spark(app_name: str) -> SparkSession:
@@ -38,14 +39,16 @@ def transform_to_silver(df):
         # RULE: Silver không cho amount null
         .filter(col("amount").isNotNull())
         # audit columns
+        .withColumn("order_date", to_date(col("order_ts")))
         .withColumn("processed_at", current_timestamp())
     )
 
 
 def write_silver(df, path: str):
     (
-        df.write
-        .mode("overwrite")
+        df.write \
+        .mode("overwrite") \
+        .partitionBy("order_date") \
         .parquet(path)
     )
 
