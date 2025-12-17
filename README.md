@@ -491,7 +491,7 @@ project:
 
 ```
 spark401-codespace/
-├── dags/
+├── .airflow/dags/
 │   └── cdp_bronze_silver_gold.py
 ├── jobs/
 │   ├── bronze_to_silver.py
@@ -511,15 +511,96 @@ Codespace (dev)
 
 ### Airflow (local) in codespace:
 
-init databse
+**Chiến lược**
+|Thành phần|Vai trò|
+|----------|-------|
+|Codespace|Code, test, CI/CD|
+|Dataproc|Spark runtime (on-demand)|
+|Composer|Airflow production|
+|GCS|Bronze / Silver|
+|BigQuery|Gold|
+
+
+
+* read doc at [link](./airflow/README.md) how to setup airflow in codespace
+
+setup cloud: ADC
 ```bash
-docker compose up airflow-webserver -d
+gcloud auth application-default login
+```
+|Lệnh|Dùng cho|
+|----|---------|
+|gcloud auth login|CLI, gsutil, gcloud|
+|gcloud auth application-default login|Python / Airflow / SDK / Spark|
+
+Airflow KHÔNG dùng credential của gcloud auth login
+→ nó chỉ đọc ADC
+
+
+run test
+```bash
+airflow dags test bronze_to_silver 2024-01-01
+```
+
+```bash
+airflow dags test silver_to_gold 2024-01-01
+```
+
+test submit job trực tiếp:
+```bash
+gcloud dataproc jobs list \
+  --region asia-southeast1 \
+  --cluster cdp-demo-dp
 ```
 
 
 
 ## Delete cluster sau khi test:
 
+|Hành động|Chi phí|
+|---------|-------|
+|Cluster tồn tại|💸 tốn tiền|
+|Delete cluster|❌ không tốn|
+|Submit job khi cluster không tồn tại|❌ fail|
+
+👉 Vì vậy sau khi dùng xong cần delete cluster, và khi test cần:
+
+🔹 Khi cần chạy DAG → tạo lại
+
+🔹 Không cần tên mới (tên cũ dùng lại OK)
+
+check
+```bash
+gcloud dataproc clusters list --region=asia-southeast1
+```
+xem chi tiết cluster:
+```bash
+gcloud dataproc clusters describe cdp-demo-dp \
+  --region=asia-southeast1
+```
+
+check instances
+```bash
+gcloud compute instances list
+```
+
+check disks
+```bash
+gcloud compute disks list
+```
+
+check staticIP
+```bash
+gcloud compute addresses list
+```
+
+check dataproc jobs
+```bash
+gcloud dataproc jobs list --region=asia-southeast1
+```
+
+### tiết kiệm
+delete
 ```bash
 gcloud dataproc clusters delete $CLUSTER_NAME --region $REGION
 ```
@@ -546,6 +627,25 @@ gcloud dataproc clusters create $CLUSTER_NAME \
   --num-workers 2 \
   --master-boot-disk-size 100 \
   --worker-boot-disk-size 100 \
+  --image-version 2.2-debian12 \
+  --project $PROJECT_ID
+```
+
+Tiết kiệm hơn nên tạo disk 50GB:
+```bash
+export PROJECT_ID=cdp-dem-project
+export REGION=asia-southeast1
+export ZONE=asia-southeast1-a
+export CLUSTER_NAME=cdp-demo-dp
+
+gcloud dataproc clusters create $CLUSTER_NAME \
+  --region $REGION \
+  --zone $ZONE \
+  --master-machine-type e2-standard-2 \
+  --worker-machine-type e2-standard-2 \
+  --num-workers 2 \
+  --master-boot-disk-size 50 \
+  --worker-boot-disk-size 50 \
   --image-version 2.2-debian12 \
   --project $PROJECT_ID
 ```
