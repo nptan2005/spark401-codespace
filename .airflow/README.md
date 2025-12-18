@@ -64,7 +64,7 @@ pip install -r ./airflow/requirements-airflow.tx
 
 ### basic config airflow
 ```bash
-export AIRFLOW_HOME=$PWD/airflow
+export AIRFLOW_HOME=$PWD/.airflow
 airflow db init
 ```
 
@@ -85,3 +85,7 @@ airflow dags list-import-errors
 airflow dags test cdp_bronze_silver_gold 2024-01-01
 ```
 
+### Tắt Example DAG:
+```bash
+export AIRFLOW__CORE__LOAD_EXAMPLES=False
+```
