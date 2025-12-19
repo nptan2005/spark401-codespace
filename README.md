@@ -705,8 +705,12 @@ gcloud beta billing projects describe cdp-dem-project
 |[Phase 1 – Environment](./docs/01_Phase_1_local_codespace.md)|Test local trên codespace|
 |[Phase 2 – Data Processing](./docs/02_Phase_2_GCP_Free_Tier_Serverless.md)|Dag test local trên codespace và spark job submit GCP Serverless|
 |[Phase 3 – Orchestration](./docs/03_Phase_3_Orchestration.md)|Airflow|
-|Phase 4 – Enterprise Hardening|Cải thien|
+|[Phase 4 – Enterprise Hardening](./docs/04_Phase_4_Enterprise_Hardening.md)|IAM · CI/CD · Guardrails|
+|Phase 5 – Observability|Logging · Lineage · Cost|
+|Phase 6 – Production|SLA · Retry · Backfill|
+
 0. [Setup airlow in codespace](./airflow/README.md)
 1. [PHASE 1 – Local / Codespace](./docs/01_Phase_1_local_codespace.md)
 2. [PHASE 2 – GCP Free Tier - DataProc Serverless](./docs/02_Phase_2_GCP_Free_Tier_Serverless.md)
 3. [PHASE 3 - Airflow orchestration](./docs/03_Phase_3_Orchestration.md)
+4. [Phase 4 – Enterprise Hardening](./docs/04_Phase_4_Enterprise_Hardening.md)

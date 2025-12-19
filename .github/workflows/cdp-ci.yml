@@ -1,0 +1,59 @@
+name: CDP CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - ".airflow/**"
+      - "jobs/**"
+      - ".github/workflows/**"
+
+jobs:
+  deploy:
+    name: Deploy DAGs & Spark Jobs
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write   # ⚠️ BẮT BUỘC cho OIDC
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Authenticate to GCP (OIDC)
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: "projects/585752501826/locations/global/workloadIdentityPools/github-pool/providers/github-provider"
+          service_account: "cdp-cicd-sa@cdp-dem-project.iam.gserviceaccount.com"
+
+      - name: Setup gcloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: cdp-dem-project
+
+      # -------------------------
+      # Deploy Airflow DAGs
+      # -------------------------
+      - name: Deploy Airflow DAGs
+        run: |
+          echo "Deploying DAGs to Composer..."
+          gsutil rsync -r .airflow/dags/cdp \
+            gs://asia-southeast1-cdp-airflow-96b66680-bucket/dags/cdp
+
+      # -------------------------
+      # Deploy Spark Jobs
+      # -------------------------
+      - name: Deploy Spark Jobs
+        run: |
+          echo "Deploying Spark jobs..."
+          gsutil rsync -r jobs/cdp \
+            gs://cdp-dem-code/jobs/cdp
+
+      # -------------------------
+      # Validation
+      # -------------------------
+      - name: Validate GCS Structure
+        run: |
+          gsutil ls gs://cdp-dem-code/jobs/cdp/orders/
+          gsutil ls gs://asia-southeast1-cdp-airflow-96b66680-bucket/dags/cdp/orders/

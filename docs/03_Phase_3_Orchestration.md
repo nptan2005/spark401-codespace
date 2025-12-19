@@ -1,5 +1,7 @@
 # Phase 3: Airflow orchestration
 
+---
+
 ## Overview:
 1.	Refactor job → idempotent
 2.	Airflow DAG trigger Dataproc Serverless
@@ -139,6 +141,8 @@ gcloud dataproc batches submit pyspark \
 ```bash
 bq show cdp-dem-project:cdp_gold.orders
 ```
+
+---
 
 ## Step 2: New DAG: 
 
@@ -552,6 +556,8 @@ apache-airflow-providers-google==10.20.0
 ```
 👉 Không dùng latest trong enterprise
 
+---
+
 ## Step 4: Triển khai Cloud Composer 2 (Airflow enterprise)
 
 > Codespace = code & CI
@@ -737,6 +743,8 @@ gcloud composer environments delete cdp-airflow \
 |Tách quyền Dataproc|✅|
 |Tách quyền BigQuery|✅|
 |Composer ServiceAgentV2Ext|✅ (cái này nhiều người thiếu)|
+
+---
 
 ## Step 5: Airflow Enterprise trên GCP (Composer 3 + Dataproc Serverless)
 
@@ -1378,6 +1386,8 @@ gcloud dataproc clusters delete cdp-demo \
 
 > Bước 5 thực hiện có phát sinh lôi do môi trường, ài vậy sẽ chuyển qua bước 4 (thực chất làm làm lại bước 5 với cách dùng dataproc cluster)
 
+---
+
 ## Step 6: Cloud Composer (Enterprise Airflow):
 
 ### 🎯 Mục tiêu:
@@ -1726,6 +1736,8 @@ gcloud composer environments delete cdp-airflow \
 ```
 
 > 💰 → KHÔNG tốn tiền qua đêm
+
+---
 
 ## Step 7: Testing with Batch Serverless
 
