@@ -141,7 +141,7 @@ airflow variables set PROJECT_ID cdp-dem-project
 airflow variables set REGION asia-southeast1
 airflow variables set DATAPROC_CLUSTER cdp-demo-dp
 
-airflow variables set JOB_BUCKET cdp-dem-bronze
+airflow variables set JOB_BUCKET z-dem-bronze
 airflow variables set BRONZE_PATH gs://cdp-dem-bronze/orders
 airflow variables set SILVER_PATH gs://cdp-dem-silver/orders
 

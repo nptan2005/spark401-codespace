@@ -26,6 +26,21 @@ share/python-wheels/
 *.egg
 MANIFEST
 
+./notebooks/.ipynb_checkpoints/*
+./tests/__pycache__/*
+./venv/*
+./.vscode/*
+./.idea/*
+./.mypy_cache/*
+./.pytest_cache/*
+./.ruff_cache/*
+./.cursorignore
+./.cursorindexingignore
+./.pdm-python
+./.pdm-build/
+./__pypackages__/*
+./celerybeat-schedule
+
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
@@ -207,15 +222,23 @@ marimo/_lsp/
 __marimo__/
 .DS_Store
 # .gitignore
-./text.txt
 
-./airflow/logs/*
-./airflow/airflow.db
-./airflow/__pycache__/*
-./airflow/dags/__pycache__/*
-./airflow/plugins/__pycache__/*
-./airflow/backup_dags/__pycache__/*
 
-./data/silver_out/*
-./data/bronze/*
-./data/silver/*
+.airflow/logs/*
+.airflow/airflow.db
+.airflow/__pycache__/*
+.airflow/dags/__pycache__/*
+.airflow/dags/cdp/__pycache__/*
+.airflow/dags/cdp/orders/__pycache__/*
+.airflow/plugins/__pycache__/*
+.airflow/backup_dags/__pycache__/*
+
+data/silver_out/*
+data/bronze/*
+data/silver/*
+
+jobs/__pycache__/*
+jobs/cdp/__pycache__/*
+jobs/cdp/orders/__pycache__/*
+
+text.txt

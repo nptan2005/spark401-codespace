@@ -1,8 +1,0 @@
-mkdir -p ./.airflow/backup_dags
-mv ./.airflow/dags/* ./.airflow/backup_dags
-cp ./.airflow/backup_dags/bronze_to_gold_dataproc_serverless.py ./.airflow/dags/
-
-
-
-
-
