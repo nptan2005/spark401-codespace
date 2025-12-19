@@ -2,35 +2,56 @@ name: CDP CI/CD Pipeline
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
       - ".airflow/**"
       - "jobs/**"
       - ".github/workflows/**"
+  workflow_dispatch:   # ✅ Cách 3 – chạy tay khi cần
 
 jobs:
   deploy:
     name: Deploy DAGs & Spark Jobs
+
+    # ✅ Guard: nếu commit có [skip ci] → không chạy
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+
     runs-on: ubuntu-latest
 
     permissions:
       contents: read
       id-token: write   # ⚠️ BẮT BUỘC cho OIDC
 
+    env:
+      PROJECT_ID: cdp-dem-project
+      DAG_BUCKET: gs://asia-southeast1-cdp-airflow-96b66680-bucket
+      CODE_BUCKET: gs://cdp-dem-code
+
     steps:
+      # -------------------------
+      # Checkout
+      # -------------------------
       - name: Checkout source
         uses: actions/checkout@v4
 
+      # -------------------------
+      # Authenticate via OIDC
+      # -------------------------
       - name: Authenticate to GCP (OIDC)
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: "projects/585752501826/locations/global/workloadIdentityPools/github-pool/providers/github-provider"
-          service_account: "cdp-cicd-sa@cdp-dem-project.iam.gserviceaccount.com"
+          workload_identity_provider: projects/585752501826/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+          service_account: cdp-cicd-sa@cdp-dem-project.iam.gserviceaccount.com
+          create_credentials_file: true
+          cleanup_credentials: true
 
+      # -------------------------
+      # Setup gcloud
+      # -------------------------
       - name: Setup gcloud SDK
         uses: google-github-actions/setup-gcloud@v2
         with:
-          project_id: cdp-dem-project
+          project_id: ${{ env.PROJECT_ID }}
 
       # -------------------------
       # Deploy Airflow DAGs
@@ -39,7 +60,7 @@ jobs:
         run: |
           echo "Deploying DAGs to Composer..."
           gsutil rsync -r .airflow/dags/cdp \
-            gs://asia-southeast1-cdp-airflow-96b66680-bucket/dags/cdp
+            ${DAG_BUCKET}/dags/cdp
 
       # -------------------------
       # Deploy Spark Jobs
@@ -48,12 +69,13 @@ jobs:
         run: |
           echo "Deploying Spark jobs..."
           gsutil rsync -r jobs/cdp \
-            gs://cdp-dem-code/jobs/cdp
+            ${CODE_BUCKET}/jobs/cdp
 
       # -------------------------
       # Validation
       # -------------------------
       - name: Validate GCS Structure
         run: |
-          gsutil ls gs://cdp-dem-code/jobs/cdp/orders/
-          gsutil ls gs://asia-southeast1-cdp-airflow-96b66680-bucket/dags/cdp/orders/
+          echo "Validating deployed structure..."
+          gsutil ls ${CODE_BUCKET}/jobs/cdp/orders/
+          gsutil ls ${DAG_BUCKET}/dags/cdp/orders/

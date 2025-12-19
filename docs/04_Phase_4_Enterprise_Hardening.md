@@ -636,3 +636,126 @@ git push origin main
 
 
 ## TEST
+
+Sau khi push commit:
+
+Vào GitHub → Actions → Run log, tìm step:
+
+```code
+Authenticate to GCP (OIDC)
+```
+
+Nếu thấy log kiểu:
+
+```code
+Successfully authenticated
+```
+
+**và KHÔNG có:**
+*	permission denied
+*	could not load credentials
+*	unauthenticated
+
+> 👉 CI/CD đã OK
+
+---
+
+## CÁCH TẠM STOP / SKIP CI KHI TEST / COMMIT 
+
+---
+
+### 🔥 CÁCH 1 – DÙNG [skip ci] (NHANH NHẤT)
+
+**👉 Khi commit:**
+
+```bash
+git commit -m "update README [skip ci]"
+```
+
+hoặc
+
+```bash
+git commit -m "docs: update README [ci skip]"
+```
+
+#### ✅ GitHub Actions sẽ:
+*	❌ KHÔNG chạy workflow
+*	❌ KHÔNG deploy
+*	❌ KHÔNG tốn tiền
+
+> 👉 Cách này đơn giản – nên dùng 80% thời gian
+
+---
+
+### 🔥 CÁCH 2 – FILTER THEO PATH 
+
+```yaml
+paths:
+  - ".airflow/**"
+  - "jobs/**"
+  - ".github/workflows/**"
+```
+
+#### 👉 Điều này có nghĩa là:
+
+|Thay đổi|CI chạy?|
+|README.md|❌|
+|docs/*.md|❌|
+|notebook|❌|
+|airflow DAG|✅|
+|spark job|✅|
+
+---
+
+### 🔥 CÁCH 3 – MANUAL CONTROL (NÂNG CAO)
+
+**Thêm workflow_dispatch:**
+
+```yaml
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - ".airflow/**"
+      - "jobs/**"
+  workflow_dispatch:
+```
+
+**👉 Khi đó bạn có thể:**
+*	Push code → không chạy
+*	Vào GitHub → Actions → Run manually
+
+---
+
+### 🔥 CÁCH 4 – FLAG CI (ENTERPRISE STYLE)
+
+#### 1️⃣ Thêm điều kiện job:
+
+```yaml
+jobs:
+  deploy:
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+```
+
+
+**👉 Double safety:**
+*	Dù quên filter path
+*	Dù ai đó push nhầm
+
+CI vẫn KHÔNG chạy
+
+### ⭐ KHUYẾN NGHỊ CHO BẠN (BEST PRACTICE)
+
+#### 👉 Dùng KẾT HỢP 3 THỨ:
+1.	paths (đã có)
+2.	[skip ci]
+3.	if: guard
+
+#### ✅ BẢN CUỐI NÊN DÙNG
+
+```yaml
+jobs:
+  deploy:
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+```
+
