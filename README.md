@@ -1,5 +1,30 @@
 # spark401-codespace
 
+##   High-level Architecture
+
+```mermaid
+flowchart LR
+    subgraph DEV["Codespaces (iPad-friendly)"]
+        VS[VS Code Web]
+        PY[PySpark Jobs]
+        AF[Airflow Local]
+    end
+
+    subgraph GCP["Google Cloud Platform"]
+        GCS_B[Bronze GCS]
+        GCS_S[Silver GCS]
+        BQ[BigQuery Gold]
+        DP[Dataproc Cluster]
+        CMP[Composer]
+    end
+
+    VS --> PY
+    PY -->|spark-submit| DP
+    DP --> GCS_B --> GCS_S --> BQ
+    AF -->|submit & monitor| DP
+    CMP -->|prod orchestration| DP
+```
+
 ## setup environment: 
 
 Auto activate .venv
@@ -122,6 +147,24 @@ pyspark --conf spark.ui.port=4040
 
 # Setup GCP:
 
+## Mô hình
+
+```mermaid
+sequenceDiagram
+    participant Dev as Codespace
+    participant GCP
+    participant GCS
+    participant DP as Dataproc
+
+    Dev->>GCP: gcloud auth
+    Dev->>GCS: upload data/code
+    Dev->>DP: submit Spark job
+    DP->>GCS: write Silver
+    DP->>GCP: load BigQuery Gold
+```
+
+## flow:
+
 ```
 Codespaces
  ├─ code PySpark
@@ -184,6 +227,13 @@ gcloud services enable \
 ```
 
 Bước 5: Create BRONZE/SILVER/GOLD Bucket:
+
+```mermaid
+flowchart LR
+    SRC[Raw CSV] --> B[Bronze GCS]
+    B --> S[Silver Parquet]
+    S --> G[BigQuery Gold]
+```
 
 ```bash
 gsutil mb -p cdp-dem-project -l asia-southeast1 gs://cdp-dem-bronze
@@ -368,12 +418,11 @@ EOF
 
 ## Bronze -> Silver -> Gold:
 
-```
-Bronze (GCS)
-   ↓
-Silver (GCS Parquet)
-   ↓
-Gold (BigQuery Tables)
+```mermaid
+flowchart LR
+	Start[Bronze: GCS] --> B[Silver: GCS Parquet]
+    B --> G[BigQuery Gold]
+
 ```
 
 Step 5: TẠO DATASET BIGQUERY:
@@ -465,6 +514,13 @@ SELECT * FROM `cdp-dem-project.cdp_gold.orders`
 
 ## Airflow DAG orchestrate Bronze → Silver → Gold:
 
+```mermaid
+flowchart TB
+    A[Airflow DAG] --> B[DataprocSubmitJob bronze→silver]
+    B --> C[DataprocSubmitJob silver→gold]
+    C --> D[BigQuery Tables]
+```
+
 ```
 Bronze (GCS) 
    → Spark on Dataproc (Silver)
@@ -512,6 +568,7 @@ Codespace (dev)
 ### Airflow (local) in codespace:
 
 **Chiến lược**
+
 |Thành phần|Vai trò|
 |----------|-------|
 |Codespace|Code, test, CI/CD|
@@ -577,6 +634,14 @@ gcloud dataproc jobs list \
 
 
 ## Delete cluster sau khi test:
+
+```mermaid
+stateDiagram-v2
+    [*] --> ClusterCreated
+    ClusterCreated --> JobRunning
+    JobRunning --> ClusterDeleted
+    ClusterDeleted --> [*]
+```
 
 |Hành động|Chi phí|
 |---------|-------|
