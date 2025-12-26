@@ -522,14 +522,15 @@ gcloud iam service-accounts add-iam-policy-binding \
 
 ## 4️⃣ CI/CD – DEPLOY DAGS AND SPARK JOBs
 
-```text
-GitHub Actions
-   ↓ (OIDC)
-Workload Identity Pool
-   ↓
-cdp-cicd-sa
-   ↓
-GCS / Composer
+```mermaid
+graph
+
+dev[GitHub Actions] --(OIDC)--> A[Workload Identity Pool]
+
+A --> B[cdp-cicd-sa]
+
+B --> C[GCS / Composer]
+
 ```
 
 ### 📄 .github/workflows/cdp-ci.yml
@@ -758,4 +759,8 @@ jobs:
   deploy:
     if: "!contains(github.event.head_commit.message, '[skip ci]')"
 ```
+
+---
+
+# 🧭 PHASE 4B – CI/CD ADVANCED (DEV / PROD / APPROVAL):
 
